@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "870266602956",
+    "project_id": "shoppingapp-5a11e",
+    "storage_bucket": "shoppingapp-5a11e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:870266602956:android:50cfb9c6d36aac68e38969",
+        "android_client_info": {
+          "package_name": "com.example.e_mart"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmUvMNBazDIxo0EGR8gasOV1SdQHwi82k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:870266602956:android:e810ed845aab67cae38969",
+        "android_client_info": {
+          "package_name": "com.example.e_mart_user"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmUvMNBazDIxo0EGR8gasOV1SdQHwi82k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
