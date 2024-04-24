@@ -1,3 +1,4 @@
+import 'package:e_mart_user/color.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -64,7 +65,13 @@ class _RatingScreenState extends State<RatingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Review Product')),
+      appBar: AppBar(title: const Text(
+          'Review Product',
+        style: TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
+      ),
+        centerTitle: true,
+        backgroundColor: primaryColor,
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,8 +212,6 @@ class _RatingScreenState extends State<RatingScreen> {
                           onPressed: () async {
                             if (hasRated) {
                               try {
-                                final userId =
-                                    FirebaseAuth.instance.currentUser!.uid;
                                 await FirebaseFirestore.instance
                                     .collection('Products')
                                     .doc(widget.productItem.id)
@@ -259,9 +264,9 @@ class _RatingScreenState extends State<RatingScreen> {
                               }
                             }
                           },
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.cyan,
-                          ),
+                          style: ElevatedButton.styleFrom(backgroundColor: primaryColor, shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(3)
+                          )),
                           child: Text(
                             hasRated ? 'Edit' : 'Submit',
                             style: Theme.of(context)
