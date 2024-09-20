@@ -10,7 +10,11 @@ class TermsAndConditionsPage extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: primaryColor,
-        title: const Text('Terms and Conditions', style: TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),),
+        title: const Text(
+          'Terms and Conditions',
+          style: TextStyle(
+              fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),

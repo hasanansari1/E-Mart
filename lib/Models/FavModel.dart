@@ -23,7 +23,8 @@ class FavModel {
   String selectedqty;
   String totalprice;
 
-  FavModel({required this.id,
+  FavModel({
+    required this.id,
     required this.images,
     // required this.category,
     required this.brand,
@@ -51,25 +52,25 @@ class FavModel {
     return FavModel(
       id: snapshot.id,
       // category: data['category']?? '',
-      brand: data['brand']?? '',
+      brand: data['brand'] ?? '',
       images: List<String>.from(data['images'] ?? []),
       productName: data['productName'] ?? '',
       productPrice: data['productPrice'] ?? '',
       color: data['productColor'] ?? '',
       productDescription: data['productDescription'] ?? '',
-      product1: data['productTitleDetail1']?? '',
-      product2: data['productTitleDetail2']?? '',
-      product3: data['productTitleDetail3']?? '',
-      product4: data['productTitleDetail4']?? '',
-      title1: data['productTitle1']?? '',
-      title2: data['productTitle2']?? '',
-      title3: data['productTitle3']?? '',
-      title4: data['productTitle4']?? '',
-      discount: data['discount']?? '',
-      newPrice: data['productNewPrice']?? '',
-      selectedqty: data['quantity']?? '',
-      totalprice: data['totalprice']?? '',
-      itemdetails: data['itemdetails']?? '',
+      product1: data['productTitleDetail1'] ?? '',
+      product2: data['productTitleDetail2'] ?? '',
+      product3: data['productTitleDetail3'] ?? '',
+      product4: data['productTitleDetail4'] ?? '',
+      title1: data['productTitle1'] ?? '',
+      title2: data['productTitle2'] ?? '',
+      title3: data['productTitle3'] ?? '',
+      title4: data['productTitle4'] ?? '',
+      discount: data['discount'] ?? '',
+      newPrice: data['productNewPrice'] ?? '',
+      selectedqty: data['quantity'] ?? '',
+      totalprice: data['totalprice'] ?? '',
+      itemdetails: data['itemdetails'] ?? '',
     );
   }
 }

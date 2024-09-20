@@ -1,260 +1,269 @@
-    import 'package:carousel_slider/carousel_slider.dart';
-    import 'package:cloud_firestore/cloud_firestore.dart';
-    import 'package:dropdown_button2/dropdown_button2.dart';
-    import 'package:firebase_auth/firebase_auth.dart';
-    import 'package:flutter/material.dart';
-    import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-    import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-    import '../BottomNavigation/BottomNavigation.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import '../BottomNavigation/BottomNavigation.dart';
 import '../Cart/CartScreen.dart';
 import '../Models/ProductModel.dart';
-    import '../Payment/Address.dart';
+import '../Payment/Address.dart';
 import '../Rating/RatingModel.dart';
-    import '../Rating/RatingScreen.dart';
+import '../Rating/RatingScreen.dart';
 
-    class ProductDetails extends StatefulWidget {
-      final ProductModel product;
+class ProductDetails extends StatefulWidget {
+  final ProductModel product;
 
-      const ProductDetails({super.key, required this.product});
+  const ProductDetails({super.key, required this.product});
 
-      @override
-      State<ProductDetails> createState() => _ProductDetailsState();
+  @override
+  State<ProductDetails> createState() => _ProductDetailsState();
+}
+
+class _ProductDetailsState extends State<ProductDetails> {
+  bool favorite = false;
+  int activeIndex = 0;
+  String? selectedColl;
+  String selectedqty = '1';
+  List<RatingItem> ratingItem = [];
+  var quantity = [
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+  ];
+  bool timer = false;
+  bool isInCart = false;
+  final List<ProductModel> _cartItems = [];
+
+  @override
+  void initState() {
+    Future.delayed(const Duration(milliseconds: 500), () {
+      setState(() {
+        timer = true;
+      });
+    });
+    checkIfInCart();
+    checkFavoriteStatus();
+    fetchReviews();
+    super.initState();
+  }
+
+  void fetchReviews() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('Products')
+          .doc(widget.product.id)
+          .collection('Rating')
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        setState(() {
+          ratingItem =
+              snapshot.docs.map((doc) => RatingItem.fromJson(doc)).toList();
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching reviews: $e');
+    }
+  }
+
+  Widget buildReviewsList() {
+    if (ratingItem.isEmpty) {
+      return Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(vertical: 20.0),
+        child: const Text(
+          'No reviews yet',
+          style: TextStyle(
+            fontSize: 16.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
     }
 
-    class _ProductDetailsState extends State<ProductDetails> {
-      bool favorite = false;
-      int activeIndex = 0;
-      String? selectedColl;
-      String selectedqty = '1';
-      List<RatingItem> ratingItem = [];
-      var quantity = ['1', '2', '3', '4', '5', '6', '7',];
-      bool timer = false;
-      bool isInCart = false;
-      List<ProductModel> _cartItems = [];
-
-
-      @override
-
-      void initState() {
-        Future.delayed(const Duration(milliseconds: 500), () {
-          setState(() {
-            timer = true;
-          });
-        });
-        checkIfInCart();
-        checkFavoriteStatus();
-        fetchReviews();
-        super.initState();
-      }
-
-      void fetchReviews() async {
-        try {
-          final snapshot = await FirebaseFirestore.instance
-              .collection('Products')
-              .doc(widget.product.id)
-              .collection('Rating')
-              .get();
-
-          if (snapshot.docs.isNotEmpty) {
-            setState(() {
-              ratingItem =
-                  snapshot.docs.map((doc) => RatingItem.fromJson(doc)).toList();
-            });
-          }
-        } catch (e) {
-          debugPrint('Error fetching reviews: $e');
-        }
-      }
-
-      Widget buildReviewsList() {
-        if (ratingItem.isEmpty) {
-          return Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(vertical: 20.0),
-            child: const Text(
-              'No reviews yet',
-              style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
-        }
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 12, 8, 0),
-              child: Text(
-                'Ratings and Reviews:',
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(8, 12, 8, 0),
+          child: Text(
+            'Ratings and Reviews:',
+            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,
                 ),
-              ),
-            ),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: ratingItem.length,
-              itemBuilder: (context, index) {
-                return buildRatingItem(ratingItem[index]);
-              },
-            ),
-          ],
-        );
-      }
+          ),
+        ),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: ratingItem.length,
+          itemBuilder: (context, index) {
+            return buildRatingItem(ratingItem[index]);
+          },
+        ),
+      ],
+    );
+  }
 
-      Widget buildRatingItem(RatingItem item) {
-        ThemeData theme = Theme.of(context);
-        Color? textColor = theme.brightness == Brightness.dark ? Colors.white : Colors.grey[800];
+  Widget buildRatingItem(RatingItem item) {
+    ThemeData theme = Theme.of(context);
+    Color? textColor =
+        theme.brightness == Brightness.dark ? Colors.white : Colors.grey[800];
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Colors.grey,
-                  child: Text(item.Name.substring(0, 1).toUpperCase()),
-                ),
-                title: Text(
-                  item.Name,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.grey,
+              child: Text(item.Name.substring(0, 1).toUpperCase()),
+            ),
+            title: Text(
+              item.Name,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        RatingBarIndicator(
-                          rating: double.parse(item.Rating),
-                          itemBuilder: (context, index) => const Icon(
-                            Icons.star,
-                            color: Colors.amber,
-                          ),
-                          itemCount: 5,
-                          itemSize: 20.0,
-                          unratedColor: Colors.grey[300],
-                        ),
-                        const SizedBox(width: 5.0),
-                        Text(
-                          '(${item.Rating} stars)',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      ],
+                    RatingBarIndicator(
+                      rating: double.parse(item.Rating),
+                      itemBuilder: (context, index) => const Icon(
+                        Icons.star,
+                        color: Colors.amber,
+                      ),
+                      itemCount: 5,
+                      itemSize: 20.0,
+                      unratedColor: Colors.grey[300],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(width: 5.0),
                     Text(
-                      item.Review,
-                      style: TextStyle(color: textColor), // Set text color dynamically
+                      '(${item.Rating} stars)',
+                      style: const TextStyle(color: Colors.grey),
                     ),
                   ],
                 ),
-              ),
-              const Divider(),
-            ],
+                const SizedBox(height: 4),
+                Text(
+                  item.Review,
+                  style:
+                      TextStyle(color: textColor), // Set text color dynamically
+                ),
+              ],
+            ),
           ),
-        );
-      }
+          const Divider(),
+        ],
+      ),
+    );
+  }
 
+  double calculateAverageRating(List<RatingItem> ratings) {
+    if (ratings.isEmpty) {
+      return 0.0;
+    }
 
+    double totalRating = 0.0;
 
-      double calculateAverageRating(List<RatingItem> ratings) {
-        if (ratings.isEmpty) {
-          return 0.0;
-        }
+    for (var rating in ratings) {
+      setState(() {
+        totalRating += double.tryParse(rating.Rating) ?? 0.0;
+      });
+    }
 
-        double totalRating = 0.0;
+    return totalRating / ratings.length;
+  }
 
-        for (var rating in ratings) {
-          setState(() {
-            totalRating += double.tryParse(rating.Rating) ?? 0.0;
-          });
-        }
+  void checkFavoriteStatus() async {
+    try {
+      // Fetch the list of favorite products
+      final UID = FirebaseAuth.instance.currentUser!.uid;
+      final snapshot = await FirebaseFirestore.instance
+          .collection('Favorites')
+          .where('UID', isEqualTo: UID)
+          .get();
 
-        return totalRating / ratings.length;
-      }
-
-      void checkFavoriteStatus() async {
-        try {
-          // Fetch the list of favorite products
-          final UID = FirebaseAuth.instance.currentUser!.uid;
-          final snapshot = await FirebaseFirestore.instance
-              .collection('Favorites')
-              .where('UID', isEqualTo: UID)
-              .get();
-
-          // Check if the current product is in the favorites list
-          final List<String> favoriteProducts =
+      // Check if the current product is in the favorites list
+      final List<String> favoriteProducts =
           snapshot.docs.map((doc) => doc['productName'] as String).toList();
 
-          setState(() {
-            favorite = favoriteProducts.contains(widget.product.productName);
-          });
-        } catch (e) {
-          print('Error fetching favorite status: $e');
+      setState(() {
+        favorite = favoriteProducts.contains(widget.product.productName);
+      });
+    } catch (e) {
+      print('Error fetching favorite status: $e');
+    }
+  }
+
+  Future<void> _removeFromFavorites(ProductModel product) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('Favorites')
+          .where('UID', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .where('productName', isEqualTo: product.productName)
+          .get()
+          .then((querySnapshot) {
+        for (var doc in querySnapshot.docs) {
+          doc.reference.delete();
         }
-      }
+      });
 
-      Future<void> _removeFromFavorites(ProductModel product) async {
-        try {
-          await FirebaseFirestore.instance
-              .collection('Favorites')
-              .where('UID', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-              .where('productName', isEqualTo: product.productName)
-              .get()
-              .then((querySnapshot) {
-            for (var doc in querySnapshot.docs) {
-              doc.reference.delete();
-            }
-          });
+      // Show snackbar message when product is removed from favorites
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Product removed from Favorites'),
+        ),
+      );
+    } catch (e) {
+      print('Error removing from favorites: $e');
+    }
+  }
 
-          // Show snackbar message when product is removed from favorites
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Product removed from Favorites'),
-            ),
-          );
-        } catch (e) {
-          print('Error removing from favorites: $e');
-        }
-      }
+  void checkIfInCart() async {
+    try {
+      // Query the Firestore to check if the product is in the cart
+      var querySnapshot = await FirebaseFirestore.instance
+          .collection('ShoppingCart')
+          .where('UID', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .where('productName', isEqualTo: widget.product.productName)
+          .limit(1)
+          .get();
 
-      void checkIfInCart() async {
-        try {
-          // Query the Firestore to check if the product is in the cart
-          var querySnapshot = await FirebaseFirestore.instance
-              .collection('ShoppingCart')
-              .where('UID', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-              .where('productName', isEqualTo: widget.product.productName)
-              .limit(1)
-              .get();
+      setState(() {
+        isInCart = querySnapshot.docs.isNotEmpty;
+      });
+    } catch (e) {
+      print('Error checking if product is in cart: $e');
+    }
+  }
 
-          setState(() {
-            isInCart = querySnapshot.docs.isNotEmpty;
-          });
-        } catch (e) {
-          print('Error checking if product is in cart: $e');
-        }
-      }
-
-      @override
-      Widget build(BuildContext context) {
-        return !timer
-            ? Container(
+  @override
+  Widget build(BuildContext context) {
+    return !timer
+        ? Container(
             color: Colors.white,
             child: const Center(
               child: CircularProgressIndicator(
                 color: Colors.indigo,
               ),
             ))
-            : Scaffold(
+        : Scaffold(
             appBar: AppBar(
               // backgroundColor: Colors.cyan,
-              title: Text("${widget.product.brand.toString()} Products",style: TextStyle(fontWeight: FontWeight.bold),),
+              title: Text(
+                "${widget.product.brand.toString()} Products",
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
             body: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
@@ -301,7 +310,7 @@ import '../Rating/RatingModel.dart';
                             autoPlay: false,
                             autoPlayInterval: const Duration(seconds: 3),
                             autoPlayAnimationDuration:
-                            const Duration(milliseconds: 800),
+                                const Duration(milliseconds: 800),
                             autoPlayCurve: Curves.fastOutSlowIn,
                             enlargeCenterPage: true,
                             enlargeFactor: 0.3,
@@ -320,7 +329,7 @@ import '../Rating/RatingModel.dart';
                         color: favorite
                             ? Colors.red
                             : Colors
-                            .grey, // Change color based on favorite status
+                                .grey, // Change color based on favorite status
                         onPressed: () async {
                           setState(() {
                             favorite = !favorite; // Toggle favorite status
@@ -435,14 +444,14 @@ import '../Rating/RatingModel.dart';
                               ),
                               items: quantity
                                   .map((item) => DropdownMenuItem<String>(
-                                value: item,
-                                child: Text(
-                                  item,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ))
+                                        value: item,
+                                        child: Text(
+                                          item,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ))
                                   .toList(),
                               value: selectedqty.toString(),
                               onChanged: (value) {
@@ -485,7 +494,7 @@ import '../Rating/RatingModel.dart';
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
-                                          const AddToCartScreen(),
+                                              const AddToCartScreen(),
                                         ));
                                   } else {
                                     // If item is not in cart, add it to cart
@@ -493,7 +502,7 @@ import '../Rating/RatingModel.dart';
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content:
-                                        Text('Successfully added to Cart'),
+                                            Text('Successfully added to Cart'),
                                       ),
                                     );
                                     // Optionally, navigate to another screen or update the UI
@@ -503,7 +512,7 @@ import '../Rating/RatingModel.dart';
                                         builder: (context) =>
                                             BottomNavigationHome(),
                                       ),
-                                          (route) => false,
+                                      (route) => false,
                                     );
                                   }
                                 },
@@ -527,14 +536,18 @@ import '../Rating/RatingModel.dart';
                                       Colors.orange[600],
                                     ),
                                     shape: MaterialStateProperty.all<
-                                        RoundedRectangleBorder>(
+                                            RoundedRectangleBorder>(
                                         RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(25.0),
-                                        ))),
+                                      borderRadius: BorderRadius.circular(25.0),
+                                    ))),
                                 onPressed: () async {
                                   await _addToCart(widget.product);
                                   _cartItems.add(widget.product);
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const Address()));
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const Address()));
                                   // Navigate to buy now screen or perform other actions
                                 },
                                 child: const Text(
@@ -668,7 +681,7 @@ import '../Rating/RatingModel.dart';
                     child: Text(
                       "About this item",
                       style:
-                      TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   ),
                   Padding(
@@ -686,9 +699,12 @@ import '../Rating/RatingModel.dart';
                         padding: const EdgeInsets.fromLTRB(8, 12, 8, 0),
                         child: Text(
                           'Ratings and Reviews:',
-                          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                         ),
                       ),
                       Padding(
@@ -718,9 +734,10 @@ import '../Rating/RatingModel.dart';
                                     .textTheme
                                     .bodyLarge!
                                     .copyWith(
-                                    color:
-                                    Theme.of(context).colorScheme.secondary,
-                                    fontWeight: FontWeight.bold),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                        fontWeight: FontWeight.bold),
                               ),
                             ),
                           ),
@@ -732,94 +749,96 @@ import '../Rating/RatingModel.dart';
                 ],
               ),
             ));
-      }
+  }
 
-      Widget buildImage(String allItems, int index) =>
-          Image.network(allItems, fit: BoxFit.contain);
+  Widget buildImage(String allItems, int index) =>
+      Image.network(allItems, fit: BoxFit.contain);
 
-      Widget buildIndicator() => AnimatedSmoothIndicator(
+  Widget buildIndicator() => AnimatedSmoothIndicator(
         activeIndex: activeIndex,
         count: widget.product.images!.length,
       );
 
-      Future<void> _addToCart(ProductModel product) async {
-        try {
-          final ratingSnapshot = await FirebaseFirestore.instance
-              .collection('Products')
-              .doc(product.id)
-              .collection('Rating')
-              .get();
+  Future<void> _addToCart(ProductModel product) async {
+    try {
+      final ratingSnapshot = await FirebaseFirestore.instance
+          .collection('Products')
+          .doc(product.id)
+          .collection('Rating')
+          .get();
 
-          final List<Map<String, dynamic>> ratingsData = ratingSnapshot.docs.map((doc) => doc.data()).toList();
+      final List<Map<String, dynamic>> ratingsData =
+          ratingSnapshot.docs.map((doc) => doc.data()).toList();
 
-          double totalPrice = double.parse(product.newPrice.replaceAll(',', '')) * int.parse(selectedqty);
-          await FirebaseFirestore.instance.collection('ShoppingCart').add({
-            'UID': FirebaseAuth.instance.currentUser!.uid,
-            'images': product.images,
-            'productName': product.productName,
-            'productPrice': product.productPrice,
-            'productNewPrice': product.newPrice,
-            'discount': product.discount,
-            'quantity': selectedqty,
-            'totalprice': totalPrice.toString(),
-            'productTitle1': product.title1,
-            'productTitle2': product.title2,
-            'productTitle3': product.title3,
-            'productTitle4': product.title4,
-            'productTitleDetail1': product.product1,
-            'productTitleDetail2': product.product2,
-            'productTitleDetail3': product.product3,
-            'productTitleDetail4': product.product4,
-            'productDescription': product.productDescription,
-            'productColor': product.color,
-            'brand': product.brand,
-            'itemdetails': product.itemdetails,
-            'ratings': ratingsData,
-
-          });
-          print('Product added to cart successfully!');
-        } catch (e) {
-          print('Error adding product to cart: $e');
-        }
-      }
-
-      Future<void> _addToFavorites(ProductModel product) async {
-        try {
-          double totalPrice = double.parse(product.newPrice.replaceAll(',', '')) * int.parse(selectedqty);
-          await FirebaseFirestore.instance.collection('Favorites').add({
-            'UID': FirebaseAuth.instance.currentUser!.uid,
-            'images': product.images,
-            'productName': product.productName,
-            'productPrice': product.productPrice,
-            'productNewPrice': product.newPrice,
-            'discount': product.discount,
-            'quantity': selectedqty,
-            'totalprice': totalPrice.toString(),
-            'productTitle1': product.title1,
-            'productTitle2': product.title2,
-            'productTitle3': product.title3,
-            'productTitle4': product.title4,
-            'productTitleDetail1': product.product1,
-            'productTitleDetail2': product.product2,
-            'productTitleDetail3': product.product3,
-            'productTitleDetail4': product.product4,
-            'productDescription': product.productDescription,
-            'productColor': product.color,
-            'brand': product.brand,
-            'itemdetails': product.itemdetails,
-            // Add any other fields you want to store in favorites
-          });
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Product added to Favorites'),
-            ),
-          );
-
-          print('Product added to favorites successfully!');
-          Navigator.pop(context);
-        } catch (e) {
-          print('Error adding product to favorites: $e');
-        }
-      }
+      double totalPrice = double.parse(product.newPrice.replaceAll(',', '')) *
+          int.parse(selectedqty);
+      await FirebaseFirestore.instance.collection('ShoppingCart').add({
+        'UID': FirebaseAuth.instance.currentUser!.uid,
+        'images': product.images,
+        'productName': product.productName,
+        'productPrice': product.productPrice,
+        'productNewPrice': product.newPrice,
+        'discount': product.discount,
+        'quantity': selectedqty,
+        'totalprice': totalPrice.toString(),
+        'productTitle1': product.title1,
+        'productTitle2': product.title2,
+        'productTitle3': product.title3,
+        'productTitle4': product.title4,
+        'productTitleDetail1': product.product1,
+        'productTitleDetail2': product.product2,
+        'productTitleDetail3': product.product3,
+        'productTitleDetail4': product.product4,
+        'productDescription': product.productDescription,
+        'productColor': product.color,
+        'brand': product.brand,
+        'itemdetails': product.itemdetails,
+        'ratings': ratingsData,
+      });
+      print('Product added to cart successfully!');
+    } catch (e) {
+      print('Error adding product to cart: $e');
     }
+  }
+
+  Future<void> _addToFavorites(ProductModel product) async {
+    try {
+      double totalPrice = double.parse(product.newPrice.replaceAll(',', '')) *
+          int.parse(selectedqty);
+      await FirebaseFirestore.instance.collection('Favorites').add({
+        'UID': FirebaseAuth.instance.currentUser!.uid,
+        'images': product.images,
+        'productName': product.productName,
+        'productPrice': product.productPrice,
+        'productNewPrice': product.newPrice,
+        'discount': product.discount,
+        'quantity': selectedqty,
+        'totalprice': totalPrice.toString(),
+        'productTitle1': product.title1,
+        'productTitle2': product.title2,
+        'productTitle3': product.title3,
+        'productTitle4': product.title4,
+        'productTitleDetail1': product.product1,
+        'productTitleDetail2': product.product2,
+        'productTitleDetail3': product.product3,
+        'productTitleDetail4': product.product4,
+        'productDescription': product.productDescription,
+        'productColor': product.color,
+        'brand': product.brand,
+        'itemdetails': product.itemdetails,
+        // Add any other fields you want to store in favorites
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Product added to Favorites'),
+        ),
+      );
+
+      print('Product added to favorites successfully!');
+      Navigator.pop(context);
+    } catch (e) {
+      print('Error adding product to favorites: $e');
+    }
+  }
+}

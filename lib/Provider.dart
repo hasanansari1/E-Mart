@@ -16,14 +16,16 @@ class ThemeProvider extends ChangeNotifier {
     if (isDarkTheme != null) {
       _currentTheme = isDarkTheme ? ThemeData.dark() : ThemeData.light();
     } else {
-      _currentTheme = ThemeData.light(); // Default theme if no preference is found
+      _currentTheme =
+          ThemeData.light(); // Default theme if no preference is found
     }
     notifyListeners();
   }
 
   Future<void> toggleTheme() async {
-    _currentTheme =
-    (_currentTheme == ThemeData.light()) ? ThemeData.dark() : ThemeData.light();
+    _currentTheme = (_currentTheme == ThemeData.light())
+        ? ThemeData.dark()
+        : ThemeData.light();
     notifyListeners();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isDarkTheme', _currentTheme == ThemeData.dark());

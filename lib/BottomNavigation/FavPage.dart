@@ -75,73 +75,79 @@ class _FavPageState extends State<FavPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: primaryColor,
-        title: Text(
-          'Favorites', style: TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),),
+        title: const Text(
+          'Favorites',
+          style: TextStyle(
+              fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
+        ),
         centerTitle: true,
       ),
       body: isLoading
-          ? Center(
-        child: CircularProgressIndicator(),
-      )
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
           : favoriteProducts.isEmpty
-          ? Center(
-        child: Text('No favorite products found', style: TextStyle(fontWeight: FontWeight.bold),),
-      )
-          : ListView.builder(
-        itemCount: favoriteProducts.length,
-        itemBuilder: (context, index) {
-          final product = favoriteProducts[index];
-          return GestureDetector(
-            onTap: () {
-              // Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetails(product: product)));
-            },
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: SizedBox(
-                    width: 150,
-                    height: 100,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: Image.network(
-                        product.images![0],
-                      ),
-                    ),
+              ? const Center(
+                  child: Text(
+                    'No favorite products found',
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  title: Text(product.productName),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Price: ${product.newPrice}'),
-                      Text('Quantity: ${product.selectedqty}')
-                    ],
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.favorite),
-                        color: Colors.red,
-                        onPressed: () {
-                          _removeFromFavorites(product);
-                        },
+                )
+              : ListView.builder(
+                  itemCount: favoriteProducts.length,
+                  itemBuilder: (context, index) {
+                    final product = favoriteProducts[index];
+                    return GestureDetector(
+                      onTap: () {
+                        // Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetails(product: product)));
+                      },
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: SizedBox(
+                              width: 150,
+                              height: 100,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child: Image.network(
+                                  product.images![0],
+                                ),
+                              ),
+                            ),
+                            title: Text(product.productName),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Price: ${product.newPrice}'),
+                                Text('Quantity: ${product.selectedqty}')
+                              ],
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.favorite),
+                                  color: Colors.red,
+                                  onPressed: () {
+                                    _removeFromFavorites(product);
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.shopping_cart),
+                                  onPressed: () {
+                                    _addToCartAndRemoveFromFavorites(product);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
-                      IconButton(
-                        icon: Icon(Icons.shopping_cart),
-                        onPressed: () {
-                          _addToCartAndRemoveFromFavorites(product);
-                        },
-                      ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
-              ),
-            ),
-          );
-        },
-      ),
     );
   }
 
@@ -178,7 +184,7 @@ class _FavPageState extends State<FavPage> {
 
       // Displaying the Snackbar
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Product added to cart.'),
         ),
       );
@@ -186,7 +192,6 @@ class _FavPageState extends State<FavPage> {
       print('Error adding to cart and removing from favorites: $e');
     }
   }
-
 
   Future<void> _addToFavorites(FavModel product) async {
     try {
@@ -237,7 +242,6 @@ class _FavPageState extends State<FavPage> {
     }
   }
 
-
   Future<void> _removeFromFavorites(FavModel product) async {
     try {
       await FirebaseFirestore.instance
@@ -248,7 +252,7 @@ class _FavPageState extends State<FavPage> {
 
       // Displaying the Snackbar
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Product removed from Favorites.'),
         ),
       );

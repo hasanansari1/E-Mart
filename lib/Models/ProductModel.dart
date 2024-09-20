@@ -22,14 +22,13 @@ class ProductModel {
   final String itemdetails;
   // final String delivery;
   List<Map<String, dynamic>> ratingData;
-   String selectedqty;
-   String totalprice;
+  String selectedqty;
+  String totalprice;
   // final String quantity;
   // final String imageUrls;
 
-
-
-  ProductModel({required this.id,
+  ProductModel({
+    required this.id,
     required this.images,
     required this.category,
     required this.brand,
@@ -54,41 +53,36 @@ class ProductModel {
     // required this.delivery,
     // required this.quantity,
     // required this.imageUrls
-
-
   });
 
-  factory ProductModel.fromSnapshot(DocumentSnapshot snapshot){
-    Map<String,dynamic> data = snapshot.data() as Map<String,dynamic>;
+  factory ProductModel.fromSnapshot(DocumentSnapshot snapshot) {
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
     return ProductModel(
       id: snapshot.id,
-      category: data['category']?? '',
-      brand: data['brand']?? '',
+      category: data['category'] ?? '',
+      brand: data['brand'] ?? '',
       images: List<String>.from(data['images'] ?? []),
       productName: data['productName'] ?? '',
       productPrice: data['productPrice'] ?? '',
       color: data['productColor'] ?? '',
       productDescription: data['productDescription'] ?? '',
-      product1: data['productTitleDetail1']?? '',
-      product2: data['productTitleDetail2']?? '',
-      product3: data['productTitleDetail3']?? '',
-      product4: data['productTitleDetail4']?? '',
-      title1: data['productTitle1']?? '',
-      title2: data['productTitle2']?? '',
-      title3: data['productTitle3']?? '',
-      title4: data['productTitle4']?? '',
-      discount: data['discount']?? '',
-      newPrice: data['productNewPrice']?? '',
-      selectedqty: data['quantity']?? '',
-      totalprice: data['totalprice']?? '',
-      itemdetails: data['itemdetails']?? '',
+      product1: data['productTitleDetail1'] ?? '',
+      product2: data['productTitleDetail2'] ?? '',
+      product3: data['productTitleDetail3'] ?? '',
+      product4: data['productTitleDetail4'] ?? '',
+      title1: data['productTitle1'] ?? '',
+      title2: data['productTitle2'] ?? '',
+      title3: data['productTitle3'] ?? '',
+      title4: data['productTitle4'] ?? '',
+      discount: data['discount'] ?? '',
+      newPrice: data['productNewPrice'] ?? '',
+      selectedqty: data['quantity'] ?? '',
+      totalprice: data['totalprice'] ?? '',
+      itemdetails: data['itemdetails'] ?? '',
       // delivery: data['Delivery']?? '',
       ratingData: List<Map<String, dynamic>>.from(data['ratings'] ?? []),
       // quantity: data['quantity']?? '',
       // imageUrls: data['images']?? '',
-
-
     );
   }
 }
-
