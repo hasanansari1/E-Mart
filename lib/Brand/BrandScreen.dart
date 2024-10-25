@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_mart_user/Brand/BrandDisplay.dart';
 import 'package:e_mart_user/color.dart';
 import 'package:flutter/material.dart';
 import '../HomePage/HomeScreen.dart';
@@ -17,7 +18,8 @@ class BrandScreen extends StatefulWidget {
 }
 
 class _BrandScreenState extends State<BrandScreen> {
-  CollectionReference brandRef = FirebaseFirestore.instance.collection('Brands');
+  CollectionReference brandRef =
+      FirebaseFirestore.instance.collection('Brands');
 
   Future<List<BrandModel>> readBrand() async {
     QuerySnapshot response = await brandRef.get();
@@ -35,7 +37,9 @@ class _BrandScreenState extends State<BrandScreen> {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontStyle: FontStyle.italic,
-            color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
+            color: Theme.of(context).brightness == Brightness.light
+                ? Colors.black
+                : Colors.white,
           ),
         ),
         actions: <Widget>[
@@ -47,13 +51,15 @@ class _BrandScreenState extends State<BrandScreen> {
                       builder: (context) => const SearchScreen()));
             },
             icon: const Icon(Icons.search),
-
           ),
         ],
       ),
       body: SingleChildScrollView(
         child: FutureBuilder<List<BrandModel>>(
-          future: readBrand().then((value) => value.where((element) => element.category == widget.selectedcategory.category).toList()),
+          future: readBrand().then((value) => value
+              .where((element) =>
+                  element.category == widget.selectedcategory.category)
+              .toList()),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -79,8 +85,9 @@ class _BrandScreenState extends State<BrandScreen> {
                     }).toList(),
                   ),
                 ),
-                const SizedBox(height: 20), // Add spacing between brand cards and products
-                const ProductHome()
+                const SizedBox(
+                    height: 20), // Add spacing between brand cards and products
+                BrandProduct(selectedCategory: widget.selectedcategory.category)
               ],
             );
           },
@@ -131,7 +138,9 @@ class BrandCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.black
+                      : Colors.white,
                 ),
               ),
             ],

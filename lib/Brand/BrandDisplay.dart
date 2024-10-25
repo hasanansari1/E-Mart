@@ -3,10 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../Models/ProductModel.dart';
 import '../Product/ProductDetails.dart';
 
-class ProductHome extends StatelessWidget {
+class BrandProduct extends StatelessWidget {
   final String selectedCategory;
 
-  const ProductHome({Key? key, required this.selectedCategory}) : super(key: key);
+  const BrandProduct({Key? key, required this.selectedCategory}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
